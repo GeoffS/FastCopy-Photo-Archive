@@ -1,0 +1,67 @@
+#!/bin/bash
+
+if [ $# != 3 ]
+then
+   echo There must be three parameters.
+   echo Usage:
+   echo "   fcc [card-drive-letter] [destination-drive-letter] [card-id]"
+   exit -1
+fi
+
+src_letter=${1}
+src_root="/cygdrive/${2}/PhotoCards"
+card_id=${3}
+
+if ( echo "${card_id}" | grep -q '^[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' )
+then
+   dst_dir_name="${card_id}"
+else
+   dst_dir_name="`date +%F`_"${card_id}""
+   echo "Prepending today's date to supplied card-id."
+fi
+
+echo "Destination directory: '${dst_dir_name}'"
+
+src_dir=/cygdrive/${src_letter}/DCIM
+dst_dir_base="${src_root}/${dst_dir_name}"
+
+ls ${src_dir}/* | egrep -v '.*:$|^$' | sort > temp_lst
+
+first=`head -1 temp_lst`
+last=`tail -1 temp_lst`
+
+dst_card_dir_name="card-${first}-to-${last}"
+
+dst_card_dir="${dst_dir_base}/${dst_card_dir_name}"
+
+if [ -e "${dst_card_dir}" ]
+then
+   echo "Destination directory '${dst_card_dir}' already exists."
+   exit -2
+fi
+
+log_file="${dst_card_dir}/fastcopy.log"
+filelog_file="${dst_dir_name}_${dst_card_dir_name}.log"
+
+if [ -e "Log/${filelog_file}" ]
+then
+   echo "File-Log file '${filelog_file}' already exists."
+   exit -3
+fi
+
+src_dir_win=`cygpath -w "${src_dir}"`
+dst_card_dir_win=`cygpath -w "${dst_card_dir}"`
+log_file_win=`cygpath -w "${log_file}"`
+filelog_file_win=`cygpath -w "${filelog_file}"`
+
+./FastCopy.exe '/cmd=noexist_only' '/auto_close'  '/open_window' "/filelog=${filelog_file_win}" "/logfile=${log_file_win}" '/verify' "${src_dir_win}" "/to=${dst_card_dir_win}"
+
+cat "${log_file}"
+
+if [ -n "`grep '^SkipFiles =' "Log/${filelog_file}"`" ]
+then
+   echo ""
+   echo "================================================"
+   echo "*****  WARNING: There were skipped files!  *****"
+   echo "================================================"
+fi

@@ -1,0 +1,24 @@
+#!/bin/bash -x
+
+if [ $# -lt 3 ]
+then
+   echo There must be three parameters.
+   echo Usage:
+   echo "   fcc2jPA [PhotoCards-drive-letter] [archive-drive-letter] [folders...]"
+   exit -1
+fi
+
+#src_root="/cygdrive/${1}/PhotoCards"
+src_root="${1}:\\PhotoCards"
+shift
+archive_root="${1}:\\Photo Archive\\Raw"
+shift
+
+for dir in $@
+do
+   echo "'${dir}'"
+   src_dir="${src_root}\\${dir}"
+   
+   java -jar jPhotoArchive.jar archiveCard "${archive_root}" "${src_dir}" "${dir}"
+done
+
