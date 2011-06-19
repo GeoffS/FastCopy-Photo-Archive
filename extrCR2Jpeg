@@ -1,0 +1,12 @@
+#!/bin/sh
+
+destDir="$1"
+rawFile="$2"
+
+echo extrCR2Jpeg: $1 $2
+
+thumbFile="${destDir}/${rawFile}.jpg"
+
+mkdir -p "`dirname "${thumbFile}"`"
+
+dcraw -c -e "$rawFile" > "$thumbFile"
