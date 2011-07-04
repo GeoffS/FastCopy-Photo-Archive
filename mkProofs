@@ -1,0 +1,6 @@
+#!/bin/sh
+
+srcDir="."
+dstDir="$1"
+
+find "${srcDir}" -name '*.CR2' -type f -exec extrCR2Jpeg "${dstDir}" "{}" \;
