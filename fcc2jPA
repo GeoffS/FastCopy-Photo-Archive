@@ -1,23 +1,38 @@
-#!/bin/bash -x
+#!/bin/bash
 
 if [ $# -lt 3 ]
 then
    echo There must be three parameters.
    echo Usage:
-   echo "   fcc2jPA [PhotoCards-drive-letter] [archive-drive-letter] [folders...]"
+   echo "   fcc2jPA [PhotoCards-drive-letter] [archive-drive-letter] [base-folder]"
    exit -1
 fi
 
-#src_root="/cygdrive/${1}/PhotoCards"
 src_root="${1}:\\PhotoCards"
-shift
-archive_root="${1}:\\Photo Archive\\Raw"
-shift
+src_root_unix=`cygpath -u "$src_root"`
+archive_root="${2}:\\Photo Archive\\Raw"
+archive_root_unix=`cygpath -u "$archive_root"`
+src_base_dir="$3"
 
-for dir in $@
+echo "Backing up the Photo-Archive DB..."
+
+dateStr=`date +'%F_%H%M%S'`
+cp -rp "${archive_root_unix}/db" "${archive_root_unix}/db_${dateStr}"
+
+echo "Archiving folders..."
+
+full_src_base_unix="${src_root_unix}/${src_base_dir}"
+if [ ! -d "${full_src_base_unix}" ]
+then
+   echo "Source dir '${full_src_base_unix}' does not exist."
+   exit 1
+fi
+
+for dir_unix in `ls "${full_src_base_unix}"`
 do
-   echo "'${dir}'"
-   src_dir="${src_root}\\${dir}"
+   dir=`basename "${dir_unix}"`
+   echo "   '${dir}'"
+   src_dir="${src_root}\\${src_base_dir}\\${dir}"
    
    java -jar jPhotoArchive.jar archiveCard "${archive_root}" "${src_dir}" "${dir}"
 done
