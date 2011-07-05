@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]
+then
+   echo There must be three parameters.
+   echo Usage:
+   echo "   jPA_backup [source archive-drive-letter] [destination archive-drive-letter]"
+   exit -1
+fi
+
+src_archive_root="${1}:\\Photo Archive\\Raw"
+src_archive_root_unix=`cygpath -u "$src_archive_root"`
+
+dst_archive_root="${2}:\\Photo Archive\\Raw"
+dst_archive_root_unix=`cygpath -u "$dst_archive_root"`
+
+echo "Backing up the Photo-Archive DBs..."
+
+dateStr=`date +'%F_%H%M%S'`
+cp -rp "${src_archive_root_unix}/db" "${src_archive_root_unix}/db_${dateStr}"
+cp -rp "${dst_archive_root_unix}/db" "${dst_archive_root_unix}/db_${dateStr}"
+
+echo "Backing up archives..."
+echo $src_archive_root '->' $dst_archive_root
+
+java -jar jPhotoArchive.jar backup "${src_archive_root}" "${dst_archive_root}"
+
