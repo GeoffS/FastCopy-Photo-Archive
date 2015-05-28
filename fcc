@@ -1,16 +1,23 @@
 #!/bin/bash
 
-if [ $# != 3 ]
+if [ $# != 3 -a $# != 4 ]
 then
-   echo There must be three parameters.
+   echo There must be three or four parameters.
    echo Usage:
-   echo "   fcc [card-drive-letter] [destination-drive-letter] [card-id]"
+   echo "   fcc [card-drive-letter] [destination-drive-letter] [card-id] [camera-id (optional)]"
    exit -1
 fi
 
 src_letter=${1}
-src_root="/cygdrive/${2}/PhotoCards"
-card_id=${3}
+dst_root="/cygdrive/${2}/PhotoCards"
+if [ $# == 4 ]
+then
+   cam_id=${4}
+   card_id=${3}_${cam_id}
+else
+   cam_id=""
+   card_id=${3}
+fi
 
 if ( echo "${card_id}" | grep -q '^[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]' )
 then
@@ -23,7 +30,7 @@ fi
 echo "Destination directory: '${dst_dir_name}'"
 
 src_dir=/cygdrive/${src_letter}/DCIM
-dst_dir_base="${src_root}/${dst_dir_name}"
+dst_dir_base="${dst_root}/${dst_dir_name}"
 
 ls ${src_dir}/* | egrep -v '.*:$|^$' | sort > temp_lst
 
@@ -64,4 +71,11 @@ then
    echo "================================================"
    echo "*****  WARNING: There were skipped files!  *****"
    echo "================================================"
+fi
+
+if [ -n "${cam_id}" ]
+then
+   echo ""
+   echo "Prepending ${cam_id} to file names..."
+   find "${dst_card_dir}" ! -name fastcopy.log -type f -exec ./prependCamId {} ${cam_id} \;
 fi

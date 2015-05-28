@@ -1,0 +1,4 @@
+#!/bin/bash
+echo $1 $2
+mv $1 `dirname ${1}`/${2}_`basename ${1}`
+
