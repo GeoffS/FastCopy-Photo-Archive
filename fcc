@@ -61,7 +61,7 @@ dst_card_dir_win=`cygpath -w "${dst_card_dir}"`
 log_file_win=`cygpath -w "${log_file}"`
 filelog_file_win=`cygpath -w "${filelog_file}"`
 
-./FastCopy.exe '/cmd=noexist_only' '/auto_close'  '/open_window' "/filelog=${filelog_file_win}" "/logfile=${log_file_win}" '/verify' "${src_dir_win}" "/to=${dst_card_dir_win}"
+./FastCopy.exe '/cmd=noexist_only' '/auto_close'  '/open_window' '/verifyinfo' "/filelog=${filelog_file_win}" "/logfile=${log_file_win}" '/verify' "${src_dir_win}" "/to=${dst_card_dir_win}"
 
 cat "${log_file}"
 
